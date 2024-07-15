@@ -194,20 +194,20 @@ private:
   }
 
   void sendFileResponse(int client_socket, const std::string& file_path, bool gzip) {
-  std::ifstream file(file_path, std::ios::binary);
-  if (file) {
-    std::ostringstream ss;
-    ss << file.rdbuf();
-    std::string file_content = ss.str();
-    std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(file_content.size()) + "\r\n";
-    if (gzip) {
-      response += "Content-Encoding: gzip\r\n";
+    std::ifstream file(file_path, std::ios::binary);
+    if (file) {
+      std::ostringstream ss;
+      ss << file.rdbuf();
+      std::string file_content = ss.str();
+      std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + std::to_string(file_content.size()) + "\r\n";
+      if (gzip) {
+        response += "Content-Encoding: gzip\r\n";
+      }
+      response += "\r\n" + file_content;
+      send(client_socket, response.c_str(), response.size(), 0);
+    } else {
+      send(client_socket, ERROR_MESSAGE.c_str(), ERROR_MESSAGE.length(), 0);
     }
-    response += "\r\n" + file_content;
-    send(client_socket, response.c_str(), response.size(), 0);
-  } else {
-    send(client_socket, ERROR_MESSAGE.c_str(), ERROR_MESSAGE.length(), 0);
-  }
   }
 
   void handleGetRequest(int client_socket, const std::string& path, bool gzip) {
